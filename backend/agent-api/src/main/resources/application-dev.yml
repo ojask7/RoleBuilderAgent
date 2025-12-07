@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/agentdb
+    username: agent
+    password: agentpass
+  jpa:
+    show-sql: true
+
+logging:
+  level:
+    com.yourorg.aiplatform: DEBUG

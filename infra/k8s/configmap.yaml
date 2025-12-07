@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-api-config
+  labels:
+    app: agent-api
+data:
+  APPLICATION_YML: |
+    app:
+      security:
+        username: agent
+        password: ${AGENT_PASSWORD}
