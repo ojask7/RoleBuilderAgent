@@ -1,5 +1,0 @@
-apiVersion: v2
-name: ai-agent-platform
-version: 0.1.0
-appVersion: "0.1.0"
-description: Helm chart for the AI Agent Platform backend.

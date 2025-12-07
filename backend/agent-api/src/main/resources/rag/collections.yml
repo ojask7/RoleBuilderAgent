@@ -1,6 +1,0 @@
-collections:
-  - name: iam-kc27-controls
-    description: KC27 policy clauses and adjudications
-    embedding-model: ${AZURE_OPENAI_EMBEDDING_DEPLOYMENT:text-embedding-3-large}
-  - name: sg-to-as-mappings
-    description: Historical SG to AS/BA mappings with owner metadata

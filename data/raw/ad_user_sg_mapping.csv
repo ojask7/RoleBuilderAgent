@@ -1,4 +1,0 @@
-userPrincipalName,securityGroup,owner
-alice@corp,SG-BILLING-ADMINS,iam@corp
-bob@corp,SG-BILLING-ADMINS,iam@corp
-carol@corp,SG-ANALYTICS-USERS,data@corp
