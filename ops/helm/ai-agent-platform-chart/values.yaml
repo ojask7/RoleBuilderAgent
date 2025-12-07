@@ -1,0 +1,11 @@
+image:
+  repository: ghcr.io/yourorg/agent-api
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+env:
+  SPRING_PROFILES_ACTIVE: prod
