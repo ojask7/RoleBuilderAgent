@@ -1,3 +1,8 @@
-applicationServiceCode,applicationServiceName
-APP_CORE_BILLING,Billing Core
-APP_ANALYTICS_PORTAL,Analytics Portal
+applicationServiceCode,applicationServiceName,entitlementName,governed
+SAP-FI-STG,SAP FI Staging,CH_SG_SAP_FI_STG_Read,YES
+SAP-FI-PRD,SAP FI Production,CH_SG_SAP_FI_PRD_Read,YES
+PowerBI-Finance,PowerBI Finance,SG_PowerBI_Finance_View,YES
+ITSM-Portal,ITSM Self-Service,SG_ITSM_SelfService,YES
+Workday-HR,Workday HR,SG_HR_Workday_Read,YES
+Workday-HR,Workday HR,SG_HR_Workday_Write,YES
+ADP-Payroll,ADP Payroll,SG_HR_ADP_Payroll,YES

@@ -1,3 +1,8 @@
-applicationServiceCode,cmdbId,owner
-APP_CORE_BILLING,CMDB-123,iam@yourorg.com
-APP_ANALYTICS_PORTAL,CMDB-456,data@yourorg.com
+applicationServiceCode,cmdbId,name,type,businessApp,owner,department
+SAP-FI-STG,CMDB-101,SAP FI Staging,AS,SAP-Finance,alice@corp.com,Finance IT
+SAP-FI-PRD,CMDB-102,SAP FI Production,AS,SAP-Finance,alice@corp.com,Finance IT
+PowerBI-Finance,CMDB-201,PowerBI Finance,AS,Reporting,bob@corp.com,Digital
+LegacyReports,CMDB-202,Legacy Reporting,AS,Reporting,john@corp.com,Digital
+ITSM-Portal,CMDB-301,ITSM Self-Service,AS,ITSM,svcdesk@corp.com,IT Operations
+Workday-HR,CMDB-401,Workday HR,AS,HR-Suite,hr-admin@corp.com,Human Resources
+ADP-Payroll,CMDB-402,ADP Payroll,AS,Payroll,payroll@corp.com,Human Resources

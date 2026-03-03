@@ -1,0 +1,7 @@
+applicationName,mdtOwner,department,costCenter
+SAP-Finance,alice@corp.com,Finance IT,CC-4400
+Reporting,bob@corp.com,Digital,CC-5500
+LegacyReports,john@corp.com,Digital,CC-5500
+ITSM,svcdesk@corp.com,IT Operations,CC-6600
+HR-Suite,hr-admin@corp.com,Human Resources,CC-7700
+Payroll,payroll@corp.com,Human Resources,CC-7700

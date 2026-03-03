@@ -1,3 +1,7 @@
-businessApplicationCode,businessApplicationName
-BA-DigitalIdentity,Digital Identity Platform
-BA-Finance,Finance Platform
+businessApplicationCode,businessApplicationName,applicationServiceCode
+SAP-Finance,SAP Finance Platform,SAP-FI-STG
+SAP-Finance,SAP Finance Platform,SAP-FI-PRD
+Reporting,Reporting Platform,PowerBI-Finance
+ITSM,IT Service Management,ITSM-Portal
+HR-Suite,HR Suite,Workday-HR
+Payroll,Payroll System,ADP-Payroll

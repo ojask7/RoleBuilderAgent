@@ -7,6 +7,10 @@ spring:
     url: jdbc:postgresql://localhost:5432/agentdb
     username: agent
     password: agentpass
+  flyway:
+    enabled: true
+    locations: filesystem:data/migrations/flyway
+    baseline-on-migrate: true
   jpa:
     hibernate:
       ddl-auto: none

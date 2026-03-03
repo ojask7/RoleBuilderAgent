@@ -1,4 +1,21 @@
-userPrincipalName,securityGroup,owner
-alice@corp,SG-BILLING-ADMINS,iam@corp
-bob@corp,SG-BILLING-ADMINS,iam@corp
-carol@corp,SG-ANALYTICS-USERS,data@corp
+userPrincipalName,department,jobTitle,securityGroups
+U001,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService"
+U002,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_ITSM_SelfService"
+U003,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService"
+U004,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_PowerBI_Finance_View,SG_ITSM_SelfService"
+U005,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService"
+U006,Finance,Senior Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService,SG_Citrix_Finance_App"
+U007,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_ITSM_SelfService"
+U008,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService"
+U009,Finance,Finance Manager,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService,SG_Citrix_Finance_App"
+U010,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_PowerBI_Finance_View,SG_ITSM_SelfService"
+U011,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_ITSM_SelfService"
+U012,Finance,Finance Analyst,"CH_SG_SAP_FI_STG_Read,CH_SG_SAP_FI_PRD_Read,SG_SAP_RFC_FI_ReadOnly,SG_PowerBI_Finance_View,SG_Legacy_Reports,SG_ITSM_SelfService"
+U020,HR,HR Specialist,"SG_HR_Workday_Read,SG_ITSM_SelfService"
+U021,HR,HR Specialist,"SG_HR_Workday_Read,SG_ITSM_SelfService"
+U022,HR,HR Specialist,"SG_HR_Workday_Read,SG_ITSM_SelfService,SG_Legacy_Reports"
+U023,HR,HR Administrator,"SG_HR_Workday_Read,SG_HR_Workday_Write,SG_HR_ADP_Payroll,SG_ITSM_SelfService"
+U024,HR,HR Administrator,"SG_HR_Workday_Read,SG_HR_Workday_Write,SG_HR_ADP_Payroll,SG_ITSM_SelfService"
+U030,IT Ops,IT Support,"SG_ITSM_SelfService,SG_Legacy_Reports,SG_Unknown_Legacy_42"
+U031,IT Ops,IT Support,"SG_ITSM_SelfService,SG_VPN_CorpNetwork"
+U032,IT Ops,IT Admin,"SG_ITSM_SelfService,SG_VPN_CorpNetwork,SG_Unknown_Legacy_42,SG_Unknown_Legacy_88"

@@ -1,22 +1,99 @@
 version: "3.9"
+
 services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL — primary data store
+  # ---------------------------------------------------------------------------
   postgres:
     image: postgres:16
-    container_name: agent-postgres
+    container_name: rolebuilder-postgres
     environment:
-      POSTGRES_DB: agentdb
-      POSTGRES_USER: agent
-      POSTGRES_PASSWORD: agentpass
+      POSTGRES_DB: ${POSTGRES_DB:-agentdb}
+      POSTGRES_USER: ${POSTGRES_USER:-agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-agentpass}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agent"]
-      interval: 10s
-      retries: 5
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-agent} -d ${POSTGRES_DB:-agentdb}"]
+      interval: 5s
+      retries: 10
       start_period: 10s
+      timeout: 5s
+
+  # ---------------------------------------------------------------------------
+  # Flyway — schema migrations (runs once, then exits)
+  # ---------------------------------------------------------------------------
+  flyway:
+    image: flyway/flyway:10
+    container_name: rolebuilder-flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ../../data/migrations/flyway:/flyway/sql:ro
+    command: >
+      -url=jdbc:postgresql://postgres:5432/${POSTGRES_DB:-agentdb}
+      -user=${POSTGRES_USER:-agent}
+      -password=${POSTGRES_PASSWORD:-agentpass}
+      -connectRetries=5
+      migrate
+
+  # ---------------------------------------------------------------------------
+  # Agent API — Spring Boot app (activate with: --profile app)
+  # ---------------------------------------------------------------------------
+  agent-api:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile
+    container_name: rolebuilder-api
+    profiles: ["app"]
+    depends_on:
+      flyway:
+        condition: service_completed_successfully
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-agentdb}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-agent}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-agentpass}
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_FLYWAY_ENABLED: "false"
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-dummy-key}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-https://your-endpoint.openai.azure.com/}
+      AZURE_OPENAI_CHAT_DEPLOYMENT: ${AZURE_OPENAI_CHAT_DEPLOYMENT:-gpt-4o-mini}
+      AZURE_OPENAI_EMBEDDING_DEPLOYMENT: ${AZURE_OPENAI_EMBEDDING_DEPLOYMENT:-text-embedding-3-large}
+      AGENT_API_USERNAME: ${AGENT_API_USERNAME:-agent}
+      AGENT_API_PASSWORD: ${AGENT_API_PASSWORD:-agent-secret}
+    ports:
+      - "${AGENT_API_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/actuator/health"]
+      interval: 15s
+      retries: 5
+      start_period: 45s
+      timeout: 5s
+
+  # ---------------------------------------------------------------------------
+  # pgAdmin — optional DB browser at http://localhost:5050
+  # ---------------------------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: rolebuilder-pgadmin
+    profiles: ["tools"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 
 volumes:
   postgres-data:
+    driver: local
+  pgadmin-data:
     driver: local

@@ -1,0 +1,16 @@
+SGName,Description,MemberCount,CreatedDate,Source
+CH_SG_SAP_FI_STG_Read,SAP FI staging read access,45,2021-03-15,AD
+CH_SG_SAP_FI_PRD_Read,SAP FI production read access,42,2021-03-15,AD
+SG_SAP_RFC_FI_ReadOnly,SAP RFC FI read-only integration,40,2021-04-01,AD
+SG_PowerBI_Finance_View,PowerBI Finance dashboards,88,2022-06-10,AD
+SG_Legacy_Reports,Legacy reporting system,120,2018-02-01,AD
+SG_ITSM_SelfService,ITSM self-service portal,950,2019-01-15,AD
+SG_HR_Workday_Read,Workday HR read access,65,2020-07-20,AD
+SG_HR_Workday_Write,Workday HR write access,12,2020-07-20,AD
+SG_HR_ADP_Payroll,ADP payroll system,8,2019-11-05,AD
+SG_Unknown_Legacy_42,,3,2015-11-20,AD
+SG_Unknown_Legacy_88,,1,2014-06-03,AD
+SG_AD_DL_Finance_All,Finance distribution list,200,2017-01-01,AD
+SG_Citrix_Finance_App,Citrix published app - Finance,35,2020-03-15,AD
+SG_VPN_CorpNetwork,Corporate VPN access,1200,2018-05-01,AD
+SG_MFA_Enrolled,MFA enrolled users,2500,2021-01-01,AD

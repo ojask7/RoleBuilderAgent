@@ -1,3 +1,6 @@
-businessApplicationCode,criticality
-BA-DigitalIdentity,Tier-1
-BA-Finance,Tier-1
+businessApplicationCode,businessApplicationName,criticality,owner,department
+SAP-Finance,SAP Finance Platform,Tier-1,alice@corp.com,Finance IT
+Reporting,Reporting Platform,Tier-2,bob@corp.com,Digital
+ITSM,IT Service Management,Tier-2,svcdesk@corp.com,IT Operations
+HR-Suite,HR Suite,Tier-1,hr-admin@corp.com,Human Resources
+Payroll,Payroll System,Tier-1,payroll@corp.com,Human Resources
