@@ -45,3 +45,21 @@ app:
     password: ${AGENT_API_PASSWORD:agent-secret}
   vector-store:
     collection: iam-agent-default
+
+# ---------------------------------------------------------------------------
+# AccessForge Integration Connectors
+# ---------------------------------------------------------------------------
+accessforge:
+  azure-ad:
+    tenant-id: ${AZURE_AD_TENANT_ID:}
+    client-id: ${AZURE_AD_CLIENT_ID:}
+    client-secret: ${AZURE_AD_CLIENT_SECRET:}
+    graph-endpoint: ${AZURE_AD_GRAPH_ENDPOINT:https://graph.microsoft.com/v1.0}
+  sailpoint:
+    tenant: ${SAILPOINT_TENANT:}
+    client-id: ${SAILPOINT_CLIENT_ID:}
+    client-secret: ${SAILPOINT_CLIENT_SECRET:}
+  servicenow:
+    instance: ${SERVICENOW_INSTANCE:}
+    username: ${SERVICENOW_USERNAME:}
+    password: ${SERVICENOW_PASSWORD:}

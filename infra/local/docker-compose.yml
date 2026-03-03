@@ -41,13 +41,13 @@ services:
       migrate
 
   # ---------------------------------------------------------------------------
-  # Agent API — Spring Boot app (activate with: --profile app)
+  # Agent API — Spring Boot backend (activate with: --profile app)
   # ---------------------------------------------------------------------------
   agent-api:
     build:
       context: ../..
       dockerfile: infra/docker/Dockerfile
-    container_name: rolebuilder-api
+    container_name: accessforge-api
     profiles: ["app"]
     depends_on:
       flyway:
@@ -64,6 +64,15 @@ services:
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT: ${AZURE_OPENAI_EMBEDDING_DEPLOYMENT:-text-embedding-3-large}
       AGENT_API_USERNAME: ${AGENT_API_USERNAME:-agent}
       AGENT_API_PASSWORD: ${AGENT_API_PASSWORD:-agent-secret}
+      AZURE_AD_TENANT_ID: ${AZURE_AD_TENANT_ID:-}
+      AZURE_AD_CLIENT_ID: ${AZURE_AD_CLIENT_ID:-}
+      AZURE_AD_CLIENT_SECRET: ${AZURE_AD_CLIENT_SECRET:-}
+      SAILPOINT_TENANT: ${SAILPOINT_TENANT:-}
+      SAILPOINT_CLIENT_ID: ${SAILPOINT_CLIENT_ID:-}
+      SAILPOINT_CLIENT_SECRET: ${SAILPOINT_CLIENT_SECRET:-}
+      SERVICENOW_INSTANCE: ${SERVICENOW_INSTANCE:-}
+      SERVICENOW_USERNAME: ${SERVICENOW_USERNAME:-}
+      SERVICENOW_PASSWORD: ${SERVICENOW_PASSWORD:-}
     ports:
       - "${AGENT_API_PORT:-8080}:8080"
     healthcheck:
@@ -74,11 +83,31 @@ services:
       timeout: 5s
 
   # ---------------------------------------------------------------------------
+  # Frontend — React app served via nginx (activate with: --profile app)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ../..
+      dockerfile: infra/docker/Dockerfile.frontend
+    container_name: accessforge-ui
+    profiles: ["app"]
+    depends_on:
+      agent-api:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:80/"]
+      interval: 15s
+      retries: 3
+      start_period: 10s
+
+  # ---------------------------------------------------------------------------
   # pgAdmin — optional DB browser at http://localhost:5050
   # ---------------------------------------------------------------------------
   pgadmin:
     image: dpage/pgadmin4:latest
-    container_name: rolebuilder-pgadmin
+    container_name: accessforge-pgadmin
     profiles: ["tools"]
     depends_on:
       postgres:

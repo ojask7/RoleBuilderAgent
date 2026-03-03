@@ -1,143 +1,191 @@
 # =============================================================================
-# RoleBuilderAgent — Makefile
+# AccessForge — From AD Chaos to Governed Access in Days
 # =============================================================================
 # Quick reference:
-#   make setup        — first-time setup (copy .env, start DB, run migrations)
-#   make dev          — start DB + run Spring Boot locally (hot-reload)
-#   make seed         — load sample IAM data into Postgres
-#   make test         — run unit/integration tests
-#   make run-docker   — build & run everything in Docker containers
-#   make status       — check what's running and healthy
-#   make teardown     — stop everything and remove volumes
+#   make setup        — first-time setup (copy .env, start DB, migrate, seed)
+#   make dev          — backend API + DB locally (for backend dev)
+#   make dev-ui       — frontend dev server with hot-reload (for UI dev)
+#   make run          — full-stack Docker: API + UI + DB + migrations
+#   make seed         — load sample IAM data
+#   make status       — check container health
+#   make smoke-test   — quick API endpoint check
+#   make teardown     — stop everything, remove volumes
 # =============================================================================
 
 SHELL := /bin/bash
 COMPOSE := docker compose -f infra/local/docker-compose.yml
 MVN := ./mvnw -B 2>/dev/null || mvn -B
 
-.PHONY: help setup dev dev-stop seed test build run-docker status logs teardown \
-        db-up db-migrate db-psql db-reset pgadmin smoke-test clean
+.PHONY: help setup dev dev-ui dev-stop seed test build run run-docker \
+        status logs teardown db-up db-migrate db-psql db-reset pgadmin \
+        smoke-test clean deploy-check
 
 # ---------------------------------------------------------------------------
-# Default target
+# Default
 # ---------------------------------------------------------------------------
 help: ## Show this help
+	@echo ""
+	@echo "  \033[1;36mAccessForge\033[0m — Intelligent Role Governance Platform"
+	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}'
+	@echo ""
 
 # ---------------------------------------------------------------------------
 # First-time setup
 # ---------------------------------------------------------------------------
-setup: ## First-time setup: copy .env, start DB, run migrations, load seed data
-	@echo "==> Checking .env file..."
-	@test -f .env || (cp .env.example .env && echo "    Created .env from .env.example — edit it with your Azure OpenAI keys")
-	@echo "==> Starting Postgres..."
+setup: ## First-time setup: env file, DB, migrations, seed data
+	@echo ""
+	@echo "  ╔═══════════════════════════════════════════════════╗"
+	@echo "  ║       AccessForge — Initial Setup                 ║"
+	@echo "  ╚═══════════════════════════════════════════════════╝"
+	@echo ""
+	@echo "==> Step 1/4: Environment file..."
+	@test -f .env || (cp .env.example .env && echo "    Created .env from .env.example")
+	@echo "==> Step 2/4: Starting Postgres..."
 	@$(COMPOSE) up -d postgres
-	@echo "==> Waiting for Postgres health check..."
+	@echo "==> Step 3/4: Running database migrations..."
 	@$(COMPOSE) up flyway
-	@echo "==> Loading sample data..."
+	@echo "==> Step 4/4: Loading sample IAM data..."
 	@bash scripts/load-sample-data.sh
 	@echo ""
-	@echo "==> Setup complete! Next steps:"
-	@echo "    1. Edit .env with your AZURE_OPENAI_API_KEY"
-	@echo "    2. Run: make dev"
+	@echo "  ╔═══════════════════════════════════════════════════╗"
+	@echo "  ║  Setup complete!                                  ║"
+	@echo "  ║                                                   ║"
+	@echo "  ║  Next steps:                                      ║"
+	@echo "  ║  1. Edit .env with your connector credentials     ║"
+	@echo "  ║  2. make run  (full-stack Docker)                 ║"
+	@echo "  ║     — or —                                        ║"
+	@echo "  ║  2. make dev  (backend only, local dev)           ║"
+	@echo "  ╚═══════════════════════════════════════════════════╝"
+	@echo ""
 
 # ---------------------------------------------------------------------------
-# Local development (DB in Docker, app on host)
+# Local development
 # ---------------------------------------------------------------------------
-dev: db-up db-migrate ## Start DB + run Spring Boot locally with hot-reload
-	@echo "==> Starting Spring Boot (Ctrl+C to stop)..."
+dev: db-up db-migrate ## Start DB + run Spring Boot API locally
+	@echo "==> Starting AccessForge API (Ctrl+C to stop)..."
 	$(MVN) -pl backend/agent-api spring-boot:run \
 		-Dspring-boot.run.profiles=dev \
 		-Dspring-boot.run.jvmArguments="-Dspring.flyway.enabled=false"
 
-dev-stop: ## Stop the local database
+dev-ui: ## Start React frontend dev server (hot-reload on port 3000)
+	@cd frontend && npm install --legacy-peer-deps && npm run dev
+
+dev-stop: ## Stop local database
 	@$(COMPOSE) stop postgres
 
 # ---------------------------------------------------------------------------
-# Database operations
+# Full-stack Docker deployment
+# ---------------------------------------------------------------------------
+run: ## Full-stack: DB + migrations + API + Frontend in Docker
+	@test -f .env || (cp .env.example .env && echo "Created .env — edit connector credentials for your environment")
+	$(COMPOSE) --profile app up --build -d
+	@echo ""
+	@echo "  ╔═══════════════════════════════════════════════════╗"
+	@echo "  ║  AccessForge is starting...                       ║"
+	@echo "  ║                                                   ║"
+	@echo "  ║  Dashboard:  http://localhost:$${FRONTEND_PORT:-3000}            ║"
+	@echo "  ║  API:        http://localhost:$${AGENT_API_PORT:-8080}            ║"
+	@echo "  ║  Health:     http://localhost:$${AGENT_API_PORT:-8080}/actuator/health ║"
+	@echo "  ║                                                   ║"
+	@echo "  ║  Login:  agent / agent-secret                     ║"
+	@echo "  ║  Status: make status                              ║"
+	@echo "  ╚═══════════════════════════════════════════════════╝"
+	@echo ""
+
+run-docker: run ## Alias for 'make run'
+
+# ---------------------------------------------------------------------------
+# Database
 # ---------------------------------------------------------------------------
 db-up: ## Start Postgres in Docker
 	@$(COMPOSE) up -d postgres
-	@echo "==> Postgres running on localhost:$${POSTGRES_PORT:-5432}"
+	@echo "==> Postgres on localhost:$${POSTGRES_PORT:-5432}"
 
-db-migrate: ## Run Flyway migrations via Docker
+db-migrate: ## Run Flyway migrations
 	@$(COMPOSE) up flyway
 
-db-psql: ## Open psql shell to local database
+db-psql: ## Open psql shell
 	@docker exec -it rolebuilder-postgres psql -U $${POSTGRES_USER:-agent} -d $${POSTGRES_DB:-agentdb}
 
-db-reset: ## Drop and recreate the database (destructive!)
-	@echo "WARNING: This will destroy all data. Press Ctrl+C to cancel..."
+db-reset: ## Drop and recreate database (destructive!)
+	@echo "WARNING: This destroys all data. Press Ctrl+C to cancel..."
 	@sleep 3
 	@docker exec rolebuilder-postgres psql -U $${POSTGRES_USER:-agent} -d postgres \
 		-c "DROP DATABASE IF EXISTS $${POSTGRES_DB:-agentdb};" \
 		-c "CREATE DATABASE $${POSTGRES_DB:-agentdb} OWNER $${POSTGRES_USER:-agent};"
 	@$(COMPOSE) up flyway
-	@echo "==> Database reset and migrations applied."
+	@echo "==> Database reset. Run 'make seed' to reload sample data."
 
 # ---------------------------------------------------------------------------
-# Seed data
+# Data
 # ---------------------------------------------------------------------------
-seed: ## Load sample IAM data (SGs, users, apps) into Postgres
+seed: ## Load sample IAM data (SGs, users, roles, bundles)
 	@bash scripts/load-sample-data.sh
 
 # ---------------------------------------------------------------------------
-# Test & Build
+# Build & Test
 # ---------------------------------------------------------------------------
 test: ## Run unit and integration tests
 	$(MVN) -pl backend/agent-api verify
 
-build: ## Build the JAR (skip tests)
+build: ## Build backend JAR (skip tests)
 	$(MVN) -pl backend/agent-api -am package -DskipTests
 
 # ---------------------------------------------------------------------------
-# Full Docker deployment
+# Tools
 # ---------------------------------------------------------------------------
-run-docker: ## Build and run everything in Docker (DB + migrations + API)
-	@test -f .env || (cp .env.example .env && echo "Created .env — edit AZURE_OPENAI_API_KEY before using AI features")
-	$(COMPOSE) --profile app up --build -d
-	@echo ""
-	@echo "==> All services starting. Check status with: make status"
-	@echo "    API:     http://localhost:$${AGENT_API_PORT:-8080}/actuator/health"
-	@echo "    Swagger: http://localhost:$${AGENT_API_PORT:-8080}/swagger-ui.html"
-
-# ---------------------------------------------------------------------------
-# Optional tools
-# ---------------------------------------------------------------------------
-pgadmin: ## Start pgAdmin web UI at http://localhost:5050
+pgadmin: ## Start pgAdmin at http://localhost:5050
 	$(COMPOSE) --profile tools up -d pgadmin
-	@echo "==> pgAdmin at http://localhost:5050 (admin@local.dev / admin)"
-	@echo "    Add server: host=postgres, port=5432, user=agent, password=agentpass"
+	@echo "==> pgAdmin: http://localhost:5050 (admin@local.dev / admin)"
 
 # ---------------------------------------------------------------------------
-# Ops
+# Operations
 # ---------------------------------------------------------------------------
-status: ## Show running containers and health status
-	@echo "=== Containers ==="
-	@docker ps --filter "name=rolebuilder-" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+status: ## Show container health and service status
 	@echo ""
-	@echo "=== API Health ==="
+	@echo "  AccessForge Service Status"
+	@echo "  ─────────────────────────────────────"
+	@docker ps --filter "name=accessforge-" --filter "name=rolebuilder-" \
+		--format "  {{.Names}}\t{{.Status}}" 2>/dev/null || echo "  No containers running"
+	@echo ""
+	@echo "  API Health:"
 	@curl -sf http://localhost:$${AGENT_API_PORT:-8080}/actuator/health 2>/dev/null \
 		| python3 -m json.tool 2>/dev/null \
-		|| echo "API not reachable (is it running?)"
+		|| echo "  API not reachable"
+	@echo ""
 
-logs: ## Tail logs from all containers
+logs: ## Tail all container logs
 	$(COMPOSE) --profile app logs -f
 
-smoke-test: ## Run quick API smoke test against localhost
-	@echo "==> Health check..."
-	@curl -sf http://localhost:$${AGENT_API_PORT:-8080}/actuator/health | python3 -m json.tool
+smoke-test: ## Quick API endpoint verification
+	@bash scripts/smoke-test.sh
+
+deploy-check: ## Verify deployment readiness (pre-client-deploy)
+	@echo "==> Deployment Readiness Check"
 	@echo ""
-	@echo "==> Entitlement summary..."
+	@echo "  1. Docker containers..."
+	@docker ps --filter "name=accessforge-" --format "     OK: {{.Names}} — {{.Status}}" 2>/dev/null
+	@echo ""
+	@echo "  2. API health..."
+	@curl -sf http://localhost:$${AGENT_API_PORT:-8080}/actuator/health >/dev/null 2>&1 \
+		&& echo "     OK: API responding" || echo "     FAIL: API not reachable"
+	@echo ""
+	@echo "  3. Frontend..."
+	@curl -sf http://localhost:$${FRONTEND_PORT:-3000}/ >/dev/null 2>&1 \
+		&& echo "     OK: Frontend serving" || echo "     FAIL: Frontend not reachable"
+	@echo ""
+	@echo "  4. Database..."
+	@docker exec rolebuilder-postgres pg_isready -U $${POSTGRES_USER:-agent} >/dev/null 2>&1 \
+		&& echo "     OK: Postgres healthy" || echo "     FAIL: Postgres not ready"
+	@echo ""
+	@echo "  5. Integration connectors..."
 	@curl -sf -u $${AGENT_API_USERNAME:-agent}:$${AGENT_API_PASSWORD:-agent-secret} \
-		http://localhost:$${AGENT_API_PORT:-8080}/api/v1/entitlements/summary | python3 -m json.tool
+		http://localhost:$${AGENT_API_PORT:-8080}/api/v1/integrations/status 2>/dev/null \
+		| python3 -m json.tool 2>/dev/null \
+		|| echo "     Integration status unavailable"
 	@echo ""
-	@echo "==> Compliance dashboard..."
-	@curl -sf -u $${AGENT_API_USERNAME:-agent}:$${AGENT_API_PASSWORD:-agent-secret} \
-		http://localhost:$${AGENT_API_PORT:-8080}/api/v1/bundles/compliance/dashboard | python3 -m json.tool
-	@echo ""
-	@echo "==> Smoke test passed."
 
 # ---------------------------------------------------------------------------
 # Cleanup
@@ -146,7 +194,7 @@ clean: ## Remove build artifacts
 	$(MVN) clean
 
 teardown: ## Stop all containers and remove volumes (destructive!)
-	@echo "WARNING: This removes all containers and data volumes. Press Ctrl+C to cancel..."
+	@echo "WARNING: Removes all containers and data volumes. Ctrl+C to cancel..."
 	@sleep 3
 	$(COMPOSE) --profile app --profile tools down -v
 	@echo "==> All containers and volumes removed."

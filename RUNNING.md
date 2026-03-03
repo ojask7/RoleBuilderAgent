@@ -1,4 +1,8 @@
-# Running the RoleBuilderAgent
+# Running AccessForge — Intelligent Role Governance Platform
+
+> From AD Chaos to Governed Access in Days, Not Months
+
+For full client deployment instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
 
 ## Prerequisites
 
